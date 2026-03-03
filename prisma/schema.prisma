@@ -1,0 +1,292 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+// generator client {
+//   provider = "prisma-client"
+//   output   = "../generated/prisma"
+// }
+
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+//////////////////////
+// ENUMS
+//////////////////////
+
+enum Role {
+  MEMBER
+  MODERATOR
+  ADMIN
+}
+
+enum ExperienceLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum ConsultationStatus {
+  OPEN
+  RESPONDED
+  CLOSED
+}
+
+enum NotificationType {
+  SYSTEM
+  SILO
+  CONSULTATION
+}
+
+//////////////////////
+// USER & AUTH
+//////////////////////
+
+model User {
+  id          String   @id @default(uuid())
+  name        String
+  email       String   @unique
+  phone       String
+  password    String
+  bio         String?
+  profileImage String? 
+  experience  ExperienceLevel?
+  skills      String[]
+  role        Role     @default(MEMBER) 
+  isVerified  Boolean  @default(false)  
+  createdAt   DateTime @default(now())
+  updatedAt    DateTime   @updatedAt
+  deletedAt    DateTime?  // soft delete
+
+  memberships   Membership[]
+  messages      Message[]
+  assessments   SkillAssessment[]
+  submissions   Submission[]
+  notifications Notification[]
+  reports       Report[]
+
+  Feedback Feedback[]
+  crossSiloRequests CrossSiloRequest[]
+  crossSiloReplies  CrossSiloReply[]
+
+
+  AuthToken AuthToken[]
+}
+
+//////////////////////
+// SILOS
+//////////////////////
+
+model Silo {
+  id        String   @id @default(uuid())
+  skill     String
+  level     ExperienceLevel
+  createdBy String
+  createdAt DateTime @default(now())
+
+  memberships   Membership[]
+  messages      Message[]
+  challenges    Challenge[]
+  resources     Resource[]
+
+  sentConsultations     ConsultationRequest[] @relation("FromSilo")
+  receivedConsultations ConsultationRequest[] @relation("ToSilo")
+}
+
+//////////////////////
+// MEMBERSHIP
+//////////////////////
+
+model Membership {
+  id     String @id @default(uuid())
+  role   Role
+  userId String
+  siloId String
+
+  user User @relation(fields: [userId], references: [id])
+  silo Silo @relation(fields: [siloId], references: [id])
+
+  @@unique([userId, siloId])
+}
+
+//////////////////////
+// MESSAGES & MODERATION
+//////////////////////
+
+model Message {
+  id        String   @id @default(uuid())
+  content   String
+  userId    String
+  siloId    String
+  createdAt DateTime @default(now())
+
+  user     User      @relation(fields: [userId], references: [id])
+  silo     Silo      @relation(fields: [siloId], references: [id])
+  feedback Feedback[]
+  reports  Report[]
+}
+
+model Feedback {
+  id        String   @id @default(uuid())
+  content   String
+  messageId String
+  userId    String
+  createdAt DateTime @default(now())
+
+  message Message @relation(fields: [messageId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+}
+
+model Report {
+  id        String   @id @default(uuid())
+  reason    String
+  userId    String
+  messageId String?
+  createdAt DateTime @default(now())
+
+  user    User     @relation(fields: [userId], references: [id])
+  message Message? @relation(fields: [messageId], references: [id])
+}
+
+//////////////////////
+// SKILL ASSESSMENT
+//////////////////////
+
+model SkillAssessment {
+  id        String           @id @default(uuid())
+  userId    String
+  skill     String
+  level     ExperienceLevel
+  verified  Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+//////////////////////
+// CHALLENGES & SUBMISSIONS
+//////////////////////
+
+model Challenge {
+  id        String   @id @default(uuid())
+  siloId    String
+  title     String
+  details   String
+  createdAt DateTime @default(now())
+
+  silo        Silo         @relation(fields: [siloId], references: [id])
+  submissions Submission[]
+}
+
+model Submission {
+  id          String   @id @default(uuid())
+  challengeId String
+  userId      String
+  content     String
+  createdAt   DateTime @default(now())
+
+  challenge Challenge @relation(fields: [challengeId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
+}
+
+//////////////////////
+// RESOURCES
+//////////////////////
+
+model Resource {
+  id        String   @id @default(uuid())
+  siloId    String
+  title     String
+  url       String
+  createdAt DateTime @default(now())
+
+  silo Silo @relation(fields: [siloId], references: [id])
+}
+
+//////////////////////
+// CONSULTATIONS
+//////////////////////
+
+model ConsultationRequest {
+  id            String               @id @default(uuid())
+  fromSiloId    String
+  toSiloId      String?
+  description   String 
+  responseMessage String? 
+  status        ConsultationStatus
+  respondedAt     DateTime? 
+  createdAt     DateTime             @default(now())
+
+  fromSilo Silo @relation("FromSilo", fields: [fromSiloId], references: [id])
+  toSilo   Silo? @relation("ToSilo", fields: [toSiloId], references: [id])
+}
+
+//////////////////////
+// NOTIFICATIONS
+//////////////////////
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  message   String
+  type      NotificationType
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+model AuthToken {
+  id         String     @id @default(uuid())
+  token      String     @unique
+  userId     String
+  type       TokenType
+  expiresAt  DateTime
+  createdAt  DateTime   @default(now())
+
+  user       User       @relation(fields: [userId], references: [id])
+}
+
+//////////////////////
+// CROSS-SILO COMMUNICATION
+//////////////////////
+
+model CrossSiloRequest {
+  id         String   @id @default(uuid())
+  title      String
+  content    String
+
+  fromUserId String?
+  fromUser   User?     @relation(fields: [fromUserId], references: [id])
+
+  createdAt  DateTime @default(now())
+
+  replies    CrossSiloReply[]
+}
+
+model CrossSiloReply {
+  id         String   @id @default(uuid())
+  message    String
+
+  requestId  String
+  request    CrossSiloRequest @relation(fields: [requestId], references: [id])
+
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+
+  createdAt  DateTime @default(now())
+}
+
+
+enum TokenType {
+  RESET_PASSWORD
+  VERIFY_EMAIL
+}
