@@ -1,0 +1,89 @@
+Here’s how your activity diagram for SkillForge could look conceptually. Since the system is a skill-based, silo-oriented peer learning platform, the activity diagram should capture the main user and system workflows: registration, skill assessment, community joining, collaboration, challenges, and feedback. I’ll describe it clearly so you can draw it using any diagramming tool (Draw.io, Lucidchart, or Figma).
+
+Activity Diagram: SkillForge User Workflow
+
+Start:
+
+User opens the SkillForge platform
+
+Activities:
+
+User Account Management:
+
+Register / Login
+
+Verify email (if registering)
+
+Forgot password / Recover password
+
+Skill Assessment & Matching:
+
+Complete self-assessment questionnaire
+
+Optional portfolio upload
+
+System assigns user to beginner/intermediate/advanced silos
+
+Community (Silo) Interaction:
+
+Search / Browse silos by skill/topic
+
+Request to join / Auto-join based on matching
+
+View silo dashboard
+
+Participate in discussions (posts, comments)
+
+Share resources or files
+
+Initiate cross-silo consultation requests
+
+Challenges (Optional):
+
+View current community challenge
+
+Submit challenge work
+
+Receive peer feedback / rate submissions
+
+Review aggregated challenge results
+
+Progress Tracking & Recognition:
+
+View activity dashboard
+
+Track completed challenges / posts / feedback given
+
+Earn badges / achievements
+
+Notifications & Events:
+
+Receive in-app or email notifications (new posts, challenge deadlines, replies)
+
+RSVP or participate in scheduled events
+
+End:
+
+User logs out or closes the platform
+
+Decision Points / Conditions:
+
+If user is new → registration flow
+
+If user completes assessment → auto-assign to silo
+
+If challenge available → submit participation? yes/no
+
+If feedback required → provide / skip
+
+Notes for Diagramming:
+
+Use swimlanes to separate User, System, and optionally Admin roles.
+
+Decision diamonds for choices like “New user?” or “Challenge available?”
+
+Activity states for each action (rounded rectangles).
+
+Arrows showing flow direction.
+
+Start (black circle) and End (black circle with border).

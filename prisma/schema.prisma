@@ -80,6 +80,8 @@ model User {
 
 
   AuthToken AuthToken[]
+
+  Resource Resource[]
 }
 
 //////////////////////
@@ -204,12 +206,15 @@ model Submission {
 
 model Resource {
   id        String   @id @default(uuid())
-  siloId    String
   title     String
-  url       String
+  fileUrl   String
+  fileType  String
+  siloId    String
+  userId    String
   createdAt DateTime @default(now())
 
   silo Silo @relation(fields: [siloId], references: [id])
+  user User @relation(fields: [userId], references: [id])
 }
 
 //////////////////////

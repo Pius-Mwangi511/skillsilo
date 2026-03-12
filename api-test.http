@@ -1,0 +1,14 @@
+POST http://localhost:3000/silos/f204198c-a70c-4213-bc0a-6a0da8aebfd1/resources
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI4NWRiMzkwNy03ZjQ5LTRlNDQtYTA5Yy1mYzYwNDBhODg5NDQiLCJyb2xlIjoiTUVNQkVSIiwiZW1haWwiOiJwaXVza2l1bmp1cmltd2FuZ2lAZ21haWwuY29tIiwiaWF0IjoxNzczMzAyOTIwLCJleHAiOjE3NzMzODkzMjB9._qrobsD7kY46GIT3DfTqpiHAVncNDD5A2-kiZrPtc58
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="title"
+
+NestJS Resource Guide
+--boundary
+Content-Disposition: form-data; name="file"; filename="activity-diagram.png"
+Content-Type: application/pdf
+
+< ./activity-diagram.png
+--boundary--
